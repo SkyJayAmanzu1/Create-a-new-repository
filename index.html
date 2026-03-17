@@ -137,7 +137,10 @@
     async function initLiff() {
       renderLoading("LIFF を初期化しています...");
       await liff.init({ liffId: LIFF_ID });
+       alert("liff.init ok");
+      
       if (!liff.isLoggedIn()) { liff.login(); return; }
+      alert("logged in");
       profile = await liff.getProfile();
       document.getElementById("profileArea").hidden = false;
       document.getElementById("profileImage").src = profile.pictureUrl || "";
