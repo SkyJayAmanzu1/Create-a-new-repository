@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>履歴一覧 | LIFF</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    :root {
+      --bg: #f6f8fb; --card: #fff; --text: #1f2937; --sub: #6b7280;
+      --border: #e5e7eb; --primary: #1d4ed8; --danger: #dc2626; --ok: #059669;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif; color: var(--text); background: var(--bg); }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 16px; }
+    .hero, .state, .empty, .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
+    .hero { margin-bottom: 16px; }
+    .title { font-size: 20px; font-weight: 700; margin: 0 0 8px; }
+    .sub { color: var(--sub); font-size: 13px; margin: 0; line-height: 1.6; }
+    .profile { margin-top: 12px; display: flex; gap: 12px; align-items: center; }
+    .avatar { width: 48px; height: 48px; border-radius: 999px; object-fit: cover; background: #ddd; }
+    .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+    button.tab, .actions button { border: 1px solid var(--border); background: var(--card); border-radius: 12px; padding: 12px; font-size: 14px; cursor: pointer; }
+    button.tab.active { border-color: var(--primary); color: var(--primary); font-weight: 700; }
+    .actions { display: flex; gap: 8px; margin-bottom: 16px; }
+    .list { display: grid; gap: 12px; }
+    .card-title { font-size: 16px; font-weight: 700; margin: 0 0 8px; line-height: 1.5; }
+    .meta { display: grid; gap: 6px; font-size: 13px; color: var(--sub); margin-bottom: 8px; }
+    .status { display: inline-block; width: fit-content; padding: 4px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; margin-bottom: 8px; border: 1px solid var(--border); background: #fff; }
+    .status.ok { color: var(--ok); border-color: #a7f3d0; background: #ecfdf5; }
+    .status.cancel { color: var(--danger); border-color: #fecaca; background: #fef2f2; }
+    .message { font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+    .footer-note { font-size: 12px; color: var(--sub); margin-top: 16px; line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1 class="title">履歴一覧</h1>
+      <p class="sub">まずは LIFF の最小構成です。<br>この画面は LINE 内で開く前提です。</p>
+      <div class="profile" id="profileArea" hidden>
+        <img id="profileImage" class="avatar" alt="profile">
+        <div>
+          <div id="displayName" style="font-weight:700;"></div>
+          <div id="userId" class="sub"></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="tabs">
+      <button class="tab active" id="tabApplication">申込履歴</button>
+      <button class="tab" id="tabConsult">相談履歴</button>
+    </div>
+
+    <div class="actions">
+      <button id="btnReload">再読み込み</button>
+      <button id="btnClose">閉じる</button>
+    </div>
+
+    <div id="app"></div>
+
+    <p class="footer-note">
+      このスターターは、Azure Functions 側に履歴取得 API を追加したら実データ連携できます。<br>
+      現時点では、LIFF 初期化・画面表示・API 呼び出し口までを確認する目的です。
+    </p>
+  </div>
+
+  <script>
+    const LIFF_ID = "YOUR_LIFF_ID";
+    const API_BASE_URL = "YOUR_FUNCTION_BASE_URL";
+    let currentTab = "application";
+    let profile = null;
+
+    const app = document.getElementById("app");
+    const tabApplication = document.getElementById("tabApplication");
+    const tabConsult = document.getElementById("tabConsult");
+    const btnReload = document.getElementById("btnReload");
+    const btnClose = document.getElementById("btnClose");
+
+    function setTabs() {
+      tabApplication.classList.toggle("active", currentTab === "application");
+      tabConsult.classList.toggle("active", currentTab === "consult");
+    }
+    function renderLoading(message = "読み込み中です...") { app.innerHTML = `<div class="state">${message}</div>`; }
+    function renderError(message) { app.innerHTML = `<div class="state">エラー: ${escapeHtml(message)}</div>`; }
+    function renderEmpty(message) { app.innerHTML = `<div class="empty">${escapeHtml(message)}</div>`; }
+    function statusClass(status) { return status === "キャンセル" ? "cancel" : "ok"; }
+
+    function renderApplicationHistory(items) {
+      if (!items.length) { renderEmpty("申込履歴はありません。"); return; }
+      const cards = items.map((item, index) => `
+        <article class="card">
+          <h2 class="card-title">${index + 1}. ${escapeHtml(item.seminarName || "名称未設定")}</h2>
+          <div class="status ${statusClass(item.applyStatus)}">${escapeHtml(item.applyStatus || "")}</div>
+          <div class="meta"><div>申込日時: ${escapeHtml(item.appliedAtText || "")}</div></div>
+        </article>`).join("");
+      app.innerHTML = `<div class="list">${cards}</div>`;
+    }
+
+    function renderConsultHistory(items) {
+      if (!items.length) { renderEmpty("相談履歴はありません。"); return; }
+      const cards = items.map((item, index) => `
+        <article class="card">
+          <h2 class="card-title">${index + 1}. ${escapeHtml(item.consultCategory || "その他")}</h2>
+          <div class="meta">
+            <div>受付日時: ${escapeHtml(item.createdAtText || "")}</div>
+            <div>状態: ${escapeHtml(item.status || "")}</div>
+          </div>
+          <div class="message">${escapeHtml(item.messageText || "")}</div>
+        </article>`).join("");
+      app.innerHTML = `<div class="list">${cards}</div>`;
+    }
+
+    async function fetchJson(path) {
+      const url = `${API_BASE_URL}${path}`;
+      const res = await fetch(url, { headers: { "Accept": "application/json" } });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    }
+
+    async function loadCurrentTab() {
+      if (!profile?.userId) { renderError("LINEユーザー情報を取得できませんでした。"); return; }
+      renderLoading();
+      try {
+        if (currentTab === "application") {
+          const data = await fetchJson(`/api/liff/application-history?lineUserId=${encodeURIComponent(profile.userId)}`);
+          renderApplicationHistory(data.items || []);
+        } else {
+          const data = await fetchJson(`/api/liff/consult-history?lineUserId=${encodeURIComponent(profile.userId)}`);
+          renderConsultHistory(data.items || []);
+        }
+      } catch (err) {
+        renderError(err.message || "履歴の取得に失敗しました。");
+      }
+    }
+
+    async function initLiff() {
+      renderLoading("LIFF を初期化しています...");
+      await liff.init({ liffId: LIFF_ID });
+      if (!liff.isLoggedIn()) { liff.login(); return; }
+      profile = await liff.getProfile();
+      document.getElementById("profileArea").hidden = false;
+      document.getElementById("profileImage").src = profile.pictureUrl || "";
+      document.getElementById("displayName").textContent = profile.displayName || "";
+      document.getElementById("userId").textContent = profile.userId || "";
+      await loadCurrentTab();
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    tabApplication.addEventListener("click", async () => { currentTab = "application"; setTabs(); await loadCurrentTab(); });
+    tabConsult.addEventListener("click", async () => { currentTab = "consult"; setTabs(); await loadCurrentTab(); });
+    btnReload.addEventListener("click", loadCurrentTab);
+    btnClose.addEventListener("click", () => { if (liff.isInClient()) liff.closeWindow(); });
+    initLiff().catch(err => renderError(err.message || "LIFF 初期化に失敗しました。"));
+  </script>
+</body>
+</html>
