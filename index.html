@@ -82,25 +82,39 @@
     function renderEmpty(message) { app.innerHTML = `<div class="empty">${escapeHtml(message)}</div>`; }
     function statusClass(status) { return status === "キャンセル" ? "cancel" : "ok"; }
 
-    function renderApplicationHistory(items) {
-      if (!items.length) { renderEmpty("申込履歴はありません。"); return; }
-      const cards = items.map((item, index) => {
-        const actionHtml = item.applyStatus === "申込済"
-          ? `<div class="card-actions"><button class="btn danger" onclick="cancelApplication('${escapeAttr(item.recordId)}')">この申込をキャンセル</button></div>`
-          : "";
-        return `
-          <article class="card">
-            <h2 class="card-title">${index + 1}. ${escapeHtml(item.seminarName || "名称未設定")}</h2>
-            <div class="status ${statusClass(item.applyStatus)}">${escapeHtml(item.applyStatus || "")}</div>
-            <div class="meta">
-              <div>申込日時: ${escapeHtml(item.appliedAtText || "")}</div>
-              <div>申込者: ${escapeHtml(item.applicantName || "")}</div>
-            </div>
-            ${actionHtml}
-          </article>`;
-      }).join("");
-      app.innerHTML = `<div class="list">${cards}</div>`;
-    }
+    <script>
+function renderApplicationHistory(items) {
+  if (!items.length) {
+    renderEmpty("申込履歴はありません。");
+    return;
+  }
+
+  const cards = items.map((item, index) => {
+    const status = item.applyStatus || "";
+    const canCancel = status === "申込済";
+    const actionHtml = canCancel
+      ? `<div class="card-actions">
+           <button class="btn danger" onclick="cancelApplication('${escapeAttr(item.recordId)}')" ${loading ? "disabled" : ""}>
+             ${loading ? "処理中..." : "この申込をキャンセル"}
+           </button>
+         </div>`
+      : "";
+
+    return `
+      <article class="card">
+        <h2 class="card-title">${index + 1}. ${escapeHtml(item.seminarName || "名称未設定")}</h2>
+        <div class="status ${statusClass(status)}">${escapeHtml(status)}</div>
+        <div class="meta">
+          <div>申込日時: ${escapeHtml(item.appliedAtText || "")}</div>
+          <div>申込者: ${escapeHtml(item.applicantName || "")}</div>
+        </div>
+        ${actionHtml}
+      </article>`;
+  }).join("");
+
+  app.innerHTML = `<div class="list">${cards}</div>`;
+}
+</script>
 
     function renderConsultHistory(items) {
       if (!items.length) { renderEmpty("相談履歴はありません。"); return; }
