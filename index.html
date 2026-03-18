@@ -7,168 +7,483 @@
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <style>
     :root {
-      --bg:#f6f8fb;
-      --card:#fff;
+      --bg:#f3f6fb;
+      --card:#ffffff;
       --text:#1f2937;
       --sub:#6b7280;
       --border:#e5e7eb;
       --primary:#1d4ed8;
+      --primary-soft:#eff6ff;
       --danger:#dc2626;
+      --danger-soft:#fef2f2;
       --ok:#059669;
+      --ok-soft:#ecfdf5;
+      --warn:#d97706;
+      --warn-soft:#fffbeb;
+      --shadow:0 8px 24px rgba(15,23,42,0.06);
     }
+
     * { box-sizing: border-box; }
+
     body {
-      margin:0;
-      font-family:"Segoe UI",system-ui,sans-serif;
-      color:var(--text);
-      background:var(--bg);
+      margin: 0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top right, #e0ecff 0%, rgba(224,236,255,0) 28%),
+        linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
     }
+
     .wrap {
-      max-width:760px;
-      margin:0 auto;
-      padding:16px;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 16px 16px 28px;
     }
-    .hero,.state,.empty,.card {
-      background:var(--card);
-      border:1px solid var(--border);
-      border-radius:16px;
-      padding:16px;
+
+    .hero,
+    .state,
+    .empty,
+    .card,
+    .notice {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
     }
-    .hero { margin-bottom:16px; }
+
+    .hero {
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
     .title {
-      font-size:20px;
-      font-weight:700;
-      margin:0 0 8px;
+      font-size: 22px;
+      font-weight: 800;
+      margin: 0 0 8px;
+      letter-spacing: 0.02em;
     }
+
     .sub {
-      color:var(--sub);
-      font-size:13px;
-      margin:0;
-      line-height:1.6;
+      color: var(--sub);
+      font-size: 13px;
+      margin: 0;
+      line-height: 1.7;
     }
+
+    .hero-badge {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid #bfdbfe;
+      background: var(--primary-soft);
+      color: var(--primary);
+      border-radius: 999px;
+      padding: 8px 10px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
     .profile {
-      margin-top:12px;
-      display:flex;
-      gap:12px;
-      align-items:center;
+      margin-top: 14px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      padding-top: 14px;
+      border-top: 1px solid #eef2f7;
     }
+
     .avatar {
-      width:48px;
-      height:48px;
-      border-radius:999px;
-      object-fit:cover;
-      background:#ddd;
+      width: 52px;
+      height: 52px;
+      border-radius: 999px;
+      object-fit: cover;
+      background: #d1d5db;
+      border: 2px solid #fff;
+      box-shadow: 0 4px 14px rgba(15,23,42,0.10);
     }
+
+    .display-name {
+      font-weight: 800;
+      margin-bottom: 2px;
+    }
+
+    .user-id {
+      color: var(--sub);
+      font-size: 12px;
+      word-break: break-all;
+    }
+
+    .notice {
+      display: none;
+      margin-bottom: 14px;
+      padding: 12px 14px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .notice.show {
+      display: block;
+    }
+
+    .notice.success {
+      border-color: #a7f3d0;
+      background: var(--ok-soft);
+      color: var(--ok);
+    }
+
+    .notice.error {
+      border-color: #fecaca;
+      background: var(--danger-soft);
+      color: var(--danger);
+    }
+
+    .notice.info {
+      border-color: #bfdbfe;
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
     .tabs {
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:8px;
-      margin-bottom:16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 14px;
+      padding: 6px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.72);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(6px);
     }
+
     button.tab,
     .actions button,
     .btn {
-      border:1px solid var(--border);
-      background:var(--card);
-      border-radius:12px;
-      padding:12px;
-      font-size:14px;
-      cursor:pointer;
+      border: 1px solid var(--border);
+      background: var(--card);
+      border-radius: 14px;
+      padding: 12px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: 0.18s ease;
     }
+
+    button.tab {
+      font-weight: 700;
+      color: var(--sub);
+      background: transparent;
+      border-color: transparent;
+    }
+
     button.tab.active {
-      border-color:var(--primary);
-      color:var(--primary);
-      font-weight:700;
+      border-color: #bfdbfe;
+      color: var(--primary);
+      background: var(--primary-soft);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.6);
     }
+
+    .summary-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: rgba(255,255,255,0.85);
+      box-shadow: var(--shadow);
+    }
+
+    .summary-label {
+      font-size: 13px;
+      color: var(--sub);
+      margin-bottom: 4px;
+    }
+
+    .summary-value {
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .mini-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--sub);
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      padding: 7px 10px;
+      white-space: nowrap;
+    }
+
     .actions {
-      display:flex;
-      gap:8px;
-      margin-bottom:16px;
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
     }
+
+    .actions button {
+      flex: 1;
+      background: rgba(255,255,255,0.9);
+      font-weight: 700;
+    }
+
+    .actions button:hover,
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
     .list {
-      display:grid;
-      gap:12px;
+      display: grid;
+      gap: 12px;
     }
+
+    .card {
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0 0;
+      height: 4px;
+      background: linear-gradient(90deg, rgba(29,78,216,0.18) 0%, rgba(29,78,216,0) 100%);
+    }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
     .card-title {
-      font-size:16px;
-      font-weight:700;
-      margin:0 0 8px;
-      line-height:1.5;
+      font-size: 16px;
+      font-weight: 800;
+      margin: 0;
+      line-height: 1.55;
     }
-    .meta {
-      display:grid;
-      gap:6px;
-      font-size:13px;
-      color:var(--sub);
-      margin-bottom:8px;
-    }
+
     .status {
-      display:inline-block;
-      width:fit-content;
-      padding:4px 8px;
-      border-radius:999px;
-      font-size:12px;
-      font-weight:700;
-      margin-bottom:8px;
-      border:1px solid var(--border);
-      background:#fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: fit-content;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      border: 1px solid var(--border);
+      background: #fff;
+      white-space: nowrap;
     }
+
     .status.ok {
-      color:var(--ok);
-      border-color:#a7f3d0;
-      background:#ecfdf5;
+      color: var(--ok);
+      border-color: #a7f3d0;
+      background: var(--ok-soft);
     }
+
     .status.cancel {
-      color:var(--danger);
-      border-color:#fecaca;
-      background:#fef2f2;
+      color: var(--danger);
+      border-color: #fecaca;
+      background: var(--danger-soft);
     }
+
+    .status.other {
+      color: var(--warn);
+      border-color: #fcd34d;
+      background: var(--warn-soft);
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .meta-item {
+      border: 1px solid #edf2f7;
+      background: #fbfdff;
+      border-radius: 14px;
+      padding: 10px 12px;
+      min-width: 0;
+    }
+
+    .meta-label {
+      font-size: 11px;
+      color: var(--sub);
+      margin-bottom: 4px;
+    }
+
+    .meta-value {
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
     .message {
-      font-size:14px;
-      line-height:1.7;
-      white-space:pre-wrap;
+      font-size: 14px;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      border: 1px solid #edf2f7;
+      border-radius: 14px;
+      background: #fbfdff;
+      padding: 12px;
     }
-    .footer-note {
-      font-size:12px;
-      color:var(--sub);
-      margin-top:16px;
-      line-height:1.6;
+
+    .card-note {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-size: 13px;
+      line-height: 1.6;
+      border: 1px solid #fee2e2;
+      background: #fff7f7;
+      color: #b91c1c;
     }
+
     .card-actions {
-      margin-top:12px;
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
     }
+
+    .btn {
+      font-weight: 800;
+    }
+
+    .btn.primary {
+      color: #fff;
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
     .btn.danger {
-      background:var(--danger);
-      border-color:var(--danger);
-      color:#fff;
+      color: #fff;
+      background: var(--danger);
+      border-color: var(--danger);
     }
+
+    .state,
+    .empty {
+      padding: 20px 16px;
+      text-align: center;
+      color: var(--sub);
+      line-height: 1.8;
+    }
+
+    .spinner {
+      width: 22px;
+      height: 22px;
+      border: 3px solid #dbeafe;
+      border-top-color: var(--primary);
+      border-radius: 999px;
+      animation: spin 0.9s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    .footer-note {
+      font-size: 12px;
+      color: var(--sub);
+      margin-top: 16px;
+      line-height: 1.7;
+      text-align: center;
+    }
+
     button:disabled,
     .btn:disabled {
-      opacity:0.6;
-      cursor:not-allowed;
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 640px) {
+      .wrap {
+        padding: 12px 12px 24px;
+      }
+
+      .hero-top,
+      .summary-bar,
+      .card-head {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .meta-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+
+      .hero-badge,
+      .mini-chip,
+      .status {
+        width: fit-content;
+      }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
     <section class="hero">
-      <h1 class="title">履歴一覧</h1>
-      <p class="sub">LIFF の履歴画面です。<br>申込履歴では、申込済のものをキャンセルできます。</p>
+      <div class="hero-top">
+        <div>
+          <h1 class="title">履歴一覧</h1>
+          <p class="sub">
+            LIFF の履歴画面です。<br>
+            申込履歴では、申込済のものをキャンセルできます。
+          </p>
+        </div>
+        <div class="hero-badge">LINE × kintone</div>
+      </div>
+
       <div class="profile" id="profileArea" hidden>
         <img id="profileImage" class="avatar" alt="profile">
         <div>
-          <div id="displayName" style="font-weight:700;"></div>
-          <div id="userId" class="sub"></div>
+          <div id="displayName" class="display-name"></div>
+          <div id="userId" class="user-id"></div>
         </div>
       </div>
     </section>
 
+    <div id="notice" class="notice" role="status" aria-live="polite"></div>
+
     <div class="tabs">
       <button class="tab active" id="tabApplication" type="button">申込履歴</button>
       <button class="tab" id="tabConsult" type="button">相談履歴</button>
+    </div>
+
+    <div class="summary-bar">
+      <div>
+        <div class="summary-label" id="summaryLabel">申込履歴</div>
+        <div class="summary-value" id="summaryValue">0件</div>
+      </div>
+      <div class="mini-chip" id="summaryChip">最新情報を表示</div>
     </div>
 
     <div class="actions">
@@ -177,7 +492,9 @@
     </div>
 
     <div id="app"></div>
-    <p class="footer-note">Azure Functions 側で CORS に Static Web Apps のURLを許可してください。</p>
+    <p class="footer-note">
+      Azure Functions 側で CORS に Static Web Apps のURLを許可してください。
+    </p>
   </div>
 
   <script>
@@ -189,18 +506,43 @@
     let loading = false;
 
     const app = document.getElementById("app");
+    const notice = document.getElementById("notice");
     const tabApplication = document.getElementById("tabApplication");
     const tabConsult = document.getElementById("tabConsult");
     const btnReload = document.getElementById("btnReload");
     const btnClose = document.getElementById("btnClose");
+    const summaryLabel = document.getElementById("summaryLabel");
+    const summaryValue = document.getElementById("summaryValue");
+    const summaryChip = document.getElementById("summaryChip");
 
     function setTabs() {
       tabApplication.classList.toggle("active", currentTab === "application");
       tabConsult.classList.toggle("active", currentTab === "consult");
+      summaryLabel.textContent = currentTab === "application" ? "申込履歴" : "相談履歴";
+    }
+
+    function setSummary(count, chipText = "最新情報を表示") {
+      summaryValue.textContent = `${count}件`;
+      summaryChip.textContent = chipText;
+    }
+
+    function showNotice(type, message) {
+      if (!message) {
+        notice.className = "notice";
+        notice.textContent = "";
+        return;
+      }
+
+      notice.className = `notice show ${type}`;
+      notice.textContent = message;
     }
 
     function renderLoading(message = "読み込み中です...") {
-      app.innerHTML = `<div class="state">${escapeHtml(message)}</div>`;
+      app.innerHTML = `
+        <div class="state">
+          <div class="spinner"></div>
+          <div>${escapeHtml(message)}</div>
+        </div>`;
     }
 
     function renderError(message) {
@@ -212,10 +554,14 @@
     }
 
     function statusClass(status) {
-      return status === "キャンセル" ? "cancel" : "ok";
+      if (status === "キャンセル") return "cancel";
+      if (status === "申込済") return "ok";
+      return "other";
     }
 
     function renderApplicationHistory(items) {
+      setSummary(items.length, "申込状況を一覧表示");
+
       if (!items.length) {
         renderEmpty("申込履歴はありません。");
         return;
@@ -237,14 +583,29 @@
              </div>`
           : "";
 
+        const noteHtml = status === "キャンセル"
+          ? `<div class="card-note">この申込はキャンセル済みです。</div>`
+          : "";
+
         return `
           <article class="card">
-            <h2 class="card-title">${index + 1}. ${escapeHtml(item.seminarName || "名称未設定")}</h2>
-            <div class="status ${statusClass(status)}">${escapeHtml(status)}</div>
-            <div class="meta">
-              <div>申込日時: ${escapeHtml(item.appliedAtText || "")}</div>
-              <div>申込者: ${escapeHtml(item.applicantName || "")}</div>
+            <div class="card-head">
+              <h2 class="card-title">${index + 1}. ${escapeHtml(item.seminarName || "名称未設定")}</h2>
+              <div class="status ${statusClass(status)}">${escapeHtml(status || "未設定")}</div>
             </div>
+
+            <div class="meta-grid">
+              <div class="meta-item">
+                <div class="meta-label">申込日時</div>
+                <div class="meta-value">${escapeHtml(item.appliedAtText || "-")}</div>
+              </div>
+              <div class="meta-item">
+                <div class="meta-label">申込者</div>
+                <div class="meta-value">${escapeHtml(item.applicantName || "-")}</div>
+              </div>
+            </div>
+
+            ${noteHtml}
             ${actionHtml}
           </article>`;
       }).join("");
@@ -253,6 +614,8 @@
     }
 
     function renderConsultHistory(items) {
+      setSummary(items.length, "相談履歴を一覧表示");
+
       if (!items.length) {
         renderEmpty("相談履歴はありません。");
         return;
@@ -260,11 +623,22 @@
 
       const cards = items.map((item, index) => `
         <article class="card">
-          <h2 class="card-title">${index + 1}. ${escapeHtml(item.consultCategory || "その他")}</h2>
-          <div class="meta">
-            <div>受付日時: ${escapeHtml(item.createdAtText || "")}</div>
-            <div>状態: ${escapeHtml(item.status || "")}</div>
+          <div class="card-head">
+            <h2 class="card-title">${index + 1}. ${escapeHtml(item.consultCategory || "その他")}</h2>
+            <div class="status other">${escapeHtml(item.status || "受付")}</div>
           </div>
+
+          <div class="meta-grid">
+            <div class="meta-item">
+              <div class="meta-label">受付日時</div>
+              <div class="meta-value">${escapeHtml(item.createdAtText || "-")}</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">状態</div>
+              <div class="meta-value">${escapeHtml(item.status || "-")}</div>
+            </div>
+          </div>
+
           <div class="message">${escapeHtml(item.messageText || "")}</div>
         </article>`).join("");
 
@@ -298,13 +672,15 @@
       return data;
     }
 
-    async function loadCurrentTab() {
+    async function loadCurrentTab(options = {}) {
       if (!profile?.userId) {
         renderError("LINEユーザー情報を取得できませんでした。");
         return;
       }
 
-      renderLoading();
+      if (!options.silent) {
+        renderLoading();
+      }
 
       try {
         if (currentTab === "application") {
@@ -316,6 +692,7 @@
         }
       } catch (err) {
         renderError(err.message || "履歴の取得に失敗しました。");
+        showNotice("error", err.message || "履歴の取得に失敗しました。");
       }
     }
 
@@ -329,6 +706,7 @@
       }
 
       loading = true;
+      showNotice("info", "キャンセル処理を実行しています...");
       await loadCurrentTab();
 
       try {
@@ -345,9 +723,9 @@
 
         currentTab = "application";
         setTabs();
-        alert(result.message || "キャンセルしました。");
+        showNotice("success", result.message || "キャンセルしました。");
       } catch (err) {
-        alert(err.message || "キャンセルに失敗しました。");
+        showNotice("error", err.message || "キャンセルに失敗しました。");
       } finally {
         loading = false;
         await loadCurrentTab();
@@ -356,6 +734,7 @@
 
     async function initLiff() {
       renderLoading("LIFF を初期化しています...");
+      showNotice("info", "LINEプロフィールを確認しています...");
 
       try {
         await liff.init({ liffId: LIFF_ID });
@@ -382,10 +761,13 @@
         document.getElementById("displayName").textContent = profile.displayName || "";
         document.getElementById("userId").textContent = profile.userId || "";
 
+        showNotice("success", "履歴を読み込みました。");
         await loadCurrentTab();
       } catch (err) {
         console.error("LIFF init/profile error:", err);
-        renderError(err?.message || JSON.stringify(err) || "プロフィール取得に失敗しました。");
+        const message = err?.message || JSON.stringify(err) || "プロフィール取得に失敗しました。";
+        renderError(message);
+        showNotice("error", message);
       }
     }
 
@@ -419,16 +801,21 @@
     tabApplication.addEventListener("click", async () => {
       currentTab = "application";
       setTabs();
+      showNotice("info", "申込履歴を表示しています。");
       await loadCurrentTab();
     });
 
     tabConsult.addEventListener("click", async () => {
       currentTab = "consult";
       setTabs();
+      showNotice("info", "相談履歴を表示しています。");
       await loadCurrentTab();
     });
 
-    btnReload.addEventListener("click", loadCurrentTab);
+    btnReload.addEventListener("click", async () => {
+      showNotice("info", "最新の履歴を再読み込みしています。");
+      await loadCurrentTab();
+    });
 
     btnClose.addEventListener("click", () => {
       if (liff.isInClient()) {
@@ -436,7 +823,13 @@
       }
     });
 
-    initLiff().catch(err => renderError(err.message || "LIFF 初期化に失敗しました。"));
+    setTabs();
+    setSummary(0);
+    initLiff().catch(err => {
+      const message = err.message || "LIFF 初期化に失敗しました。";
+      renderError(message);
+      showNotice("error", message);
+    });
   </script>
 </body>
 </html>
