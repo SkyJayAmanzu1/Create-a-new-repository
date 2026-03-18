@@ -165,18 +165,41 @@
       }
     }
     window.cancelApplication = cancelApplication;
+    
+  async function initLiff() {
+    renderLoading("LIFF を初期化しています...");
 
-    async function initLiff() {
-      renderLoading("LIFF を初期化しています...");
+    try {
       await liff.init({ liffId: LIFF_ID });
-      if (!liff.isLoggedIn()) { liff.login(); return; }
+
+      if (!liff.isLoggedIn()) {
+        liff.login();
+        return;
+      }
+
+      const granted = await liff.permission.getGrantedAll();
+      const hasProfile = granted.includes("profile");
+
+      if (!hasProfile) {
+        const permissionStatus = await liff.permission.query("profile");
+        if (permissionStatus.state === "prompt") {
+          await liff.permission.requestAll();
+        }
+      }
+
       profile = await liff.getProfile();
+
       document.getElementById("profileArea").hidden = false;
       document.getElementById("profileImage").src = profile.pictureUrl || "";
       document.getElementById("displayName").textContent = profile.displayName || "";
       document.getElementById("userId").textContent = profile.userId || "";
+
       await loadCurrentTab();
+    } catch (err) {
+      console.error("LIFF init/profile error:", err);
+      renderError(err?.message || JSON.stringify(err) || "プロフィール取得に失敗しました。");
     }
+  }
 
     function escapeHtml(str) {
       return String(str)
