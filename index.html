@@ -82,7 +82,6 @@
     function renderEmpty(message) { app.innerHTML = `<div class="empty">${escapeHtml(message)}</div>`; }
     function statusClass(status) { return status === "キャンセル" ? "cancel" : "ok"; }
 
-    <script>
 function renderApplicationHistory(items) {
   if (!items.length) {
     renderEmpty("申込履歴はありません。");
@@ -114,7 +113,6 @@ function renderApplicationHistory(items) {
 
   app.innerHTML = `<div class="list">${cards}</div>`;
 }
-</script>
 
     function renderConsultHistory(items) {
       if (!items.length) { renderEmpty("相談履歴はありません。"); return; }
@@ -160,25 +158,37 @@ function renderApplicationHistory(items) {
       }
     }
 
-    async function cancelApplication(recordId) {
-      if (!profile?.userId || !recordId || loading) return;
-      if (!confirm("この申込をキャンセルしますか？")) return;
-      loading = true;
-      try {
-        await fetchJson("/api/liff/cancel-application", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ lineUserId: profile.userId, applicationRecordId: recordId })
-        });
-        await loadCurrentTab();
-        alert("キャンセルしました。");
-      } catch (err) {
-        alert(err.message || "キャンセルに失敗しました。");
-      } finally {
-        loading = false;
-      }
-    }
-    window.cancelApplication = cancelApplication;
+async function cancelApplication(recordId) {
+  if (!profile?.userId || !recordId || loading) return;
+  if (!confirm("この申込をキャンセルしますか？")) return;
+
+  loading = true;
+  await loadCurrentTab();
+
+  try {
+    const result = await fetchJson("/api/liff/cancel-application", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        lineUserId: profile.userId,
+        applicationRecordId: recordId
+      })
+    });
+
+    currentTab = "application";
+    setTabs();
+    await loadCurrentTab();
+
+    alert(result.message || "キャンセルしました。");
+  } catch (err) {
+    alert(err.message || "キャンセルに失敗しました。");
+    await loadCurrentTab();
+  } finally {
+    loading = false;
+    await loadCurrentTab();
+  }
+}
+window.cancelApplication = cancelApplication;
     
   async function initLiff() {
     renderLoading("LIFF を初期化しています...");
