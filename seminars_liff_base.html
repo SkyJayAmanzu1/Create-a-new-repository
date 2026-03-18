@@ -1,0 +1,798 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>セミナー申込 | LIFF</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    :root {
+      --bg:#f3f6fb;
+      --card:#ffffff;
+      --text:#1f2937;
+      --sub:#6b7280;
+      --border:#e5e7eb;
+      --primary:#1d4ed8;
+      --primary-soft:#eff6ff;
+      --danger:#dc2626;
+      --danger-soft:#fef2f2;
+      --ok:#059669;
+      --ok-soft:#ecfdf5;
+      --warn:#d97706;
+      --warn-soft:#fffbeb;
+      --shadow:0 8px 24px rgba(15,23,42,0.06);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top right, #e0ecff 0%, rgba(224,236,255,0) 28%),
+        linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
+    }
+
+    .wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 16px 16px 28px;
+    }
+
+    .hero,
+    .notice,
+    .card,
+    .state,
+    .empty {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .title {
+      font-size: 22px;
+      font-weight: 800;
+      margin: 0 0 8px;
+      letter-spacing: 0.02em;
+    }
+
+    .sub {
+      color: var(--sub);
+      font-size: 13px;
+      margin: 0;
+      line-height: 1.7;
+    }
+
+    .hero-badge {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid #bfdbfe;
+      background: var(--primary-soft);
+      color: var(--primary);
+      border-radius: 999px;
+      padding: 8px 10px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .profile {
+      margin-top: 14px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      padding-top: 14px;
+      border-top: 1px solid #eef2f7;
+    }
+
+    .avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 999px;
+      object-fit: cover;
+      background: #d1d5db;
+      border: 2px solid #fff;
+      box-shadow: 0 4px 14px rgba(15,23,42,0.10);
+    }
+
+    .display-name {
+      font-weight: 800;
+      margin-bottom: 2px;
+    }
+
+    .user-id {
+      color: var(--sub);
+      font-size: 12px;
+      word-break: break-all;
+    }
+
+    .notice {
+      display: none;
+      margin-bottom: 14px;
+      padding: 12px 14px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .notice.show { display: block; }
+    .notice.success {
+      border-color: #a7f3d0;
+      background: var(--ok-soft);
+      color: var(--ok);
+    }
+    .notice.error {
+      border-color: #fecaca;
+      background: var(--danger-soft);
+      color: var(--danger);
+    }
+    .notice.info {
+      border-color: #bfdbfe;
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    .summary-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: rgba(255,255,255,0.85);
+      box-shadow: var(--shadow);
+    }
+
+    .summary-label {
+      font-size: 13px;
+      color: var(--sub);
+      margin-bottom: 4px;
+    }
+
+    .summary-value {
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .mini-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--sub);
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      padding: 7px 10px;
+      white-space: nowrap;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    button,
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--card);
+      border-radius: 14px;
+      padding: 12px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: 0.18s ease;
+      font-weight: 700;
+    }
+
+    .actions button {
+      flex: 1;
+      background: rgba(255,255,255,0.9);
+    }
+
+    button:hover,
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn.primary {
+      color: #fff;
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .btn.danger {
+      color: #fff;
+      background: var(--danger);
+      border-color: var(--danger);
+    }
+
+    .btn.subtle {
+      background: #fff;
+    }
+
+    .list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .card {
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0 0;
+      height: 4px;
+      background: linear-gradient(90deg, rgba(29,78,216,0.18) 0%, rgba(29,78,216,0) 100%);
+    }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .card-title {
+      font-size: 17px;
+      font-weight: 800;
+      margin: 0;
+      line-height: 1.55;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: fit-content;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      border: 1px solid var(--border);
+      background: #fff;
+      white-space: nowrap;
+    }
+
+    .status.ok {
+      color: var(--ok);
+      border-color: #a7f3d0;
+      background: var(--ok-soft);
+    }
+
+    .status.other {
+      color: var(--warn);
+      border-color: #fcd34d;
+      background: var(--warn-soft);
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .meta-item {
+      border: 1px solid #edf2f7;
+      background: #fbfdff;
+      border-radius: 14px;
+      padding: 10px 12px;
+      min-width: 0;
+    }
+
+    .meta-label {
+      font-size: 11px;
+      color: var(--sub);
+      margin-bottom: 4px;
+    }
+
+    .meta-value {
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .message {
+      font-size: 14px;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      border: 1px solid #edf2f7;
+      border-radius: 14px;
+      background: #fbfdff;
+      padding: 12px;
+      margin-top: 10px;
+    }
+
+    .card-actions {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .form-box {
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid #dbeafe;
+      border-radius: 16px;
+      background: #f8fbff;
+    }
+
+    .form-row {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .form-label {
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      font-size: 14px;
+      outline: none;
+      background: #fff;
+    }
+
+    .form-input:focus {
+      border-color: #93c5fd;
+      box-shadow: 0 0 0 4px rgba(147,197,253,0.18);
+    }
+
+    .state,
+    .empty {
+      padding: 20px 16px;
+      text-align: center;
+      color: var(--sub);
+      line-height: 1.8;
+    }
+
+    .spinner {
+      width: 22px;
+      height: 22px;
+      border: 3px solid #dbeafe;
+      border-top-color: var(--primary);
+      border-radius: 999px;
+      animation: spin 0.9s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    .footer-note {
+      font-size: 12px;
+      color: var(--sub);
+      margin-top: 16px;
+      line-height: 1.7;
+      text-align: center;
+    }
+
+    button:disabled,
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 640px) {
+      .wrap {
+        padding: 12px 12px 24px;
+      }
+
+      .hero-top,
+      .summary-bar,
+      .card-head {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .meta-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .actions,
+      .card-actions {
+        flex-direction: column;
+      }
+
+      .hero-badge,
+      .mini-chip,
+      .status {
+        width: fit-content;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="hero-top">
+        <div>
+          <h1 class="title">セミナー申込</h1>
+          <p class="sub">
+            LIFF から募集中のセミナーを確認し、そのまま申込できます。<br>
+            一覧からセミナーを選び、名前を入力して申込してください。
+          </p>
+        </div>
+        <div class="hero-badge">LINE × kintone</div>
+      </div>
+
+      <div class="profile" id="profileArea" hidden>
+        <img id="profileImage" class="avatar" alt="profile">
+        <div>
+          <div id="displayName" class="display-name"></div>
+          <div id="userId" class="user-id"></div>
+        </div>
+      </div>
+    </section>
+
+    <div id="notice" class="notice" role="status" aria-live="polite"></div>
+
+    <div class="summary-bar">
+      <div>
+        <div class="summary-label">募集中セミナー</div>
+        <div class="summary-value" id="summaryValue">0件</div>
+      </div>
+      <div class="mini-chip" id="summaryChip">一覧を表示</div>
+    </div>
+
+    <div class="actions">
+      <button id="btnBackToList" type="button" hidden>一覧へ戻る</button>
+      <button id="btnReload" type="button">再読み込み</button>
+      <button id="btnClose" type="button">閉じる</button>
+    </div>
+
+    <div id="app"></div>
+
+    <p class="footer-note">
+      申込APIは別途追加予定です。まずは一覧・詳細・入力画面のベースです。
+    </p>
+  </div>
+
+  <script>
+    const LIFF_ID = "2009497060-pdQJAePB";
+    const API_BASE_URL = "https://func-line-kintone-dev-01-fzgnh4dtc4cxcfdp.japaneast-01.azurewebsites.net";
+
+    let profile = null;
+    let loading = false;
+    let seminarItems = [];
+    let currentMode = "list";
+    let selectedSeminar = null;
+
+    const app = document.getElementById("app");
+    const notice = document.getElementById("notice");
+    const summaryValue = document.getElementById("summaryValue");
+    const summaryChip = document.getElementById("summaryChip");
+    const btnBackToList = document.getElementById("btnBackToList");
+    const btnReload = document.getElementById("btnReload");
+    const btnClose = document.getElementById("btnClose");
+
+    function setSummary(count, chipText = "一覧を表示") {
+      summaryValue.textContent = `${count}件`;
+      summaryChip.textContent = chipText;
+    }
+
+    function showNotice(type, message) {
+      if (!message) {
+        notice.className = "notice";
+        notice.textContent = "";
+        return;
+      }
+
+      notice.className = `notice show ${type}`;
+      notice.textContent = message;
+    }
+
+    function renderLoading(message = "読み込み中です...") {
+      app.innerHTML = `
+        <div class="state">
+          <div class="spinner"></div>
+          <div>${escapeHtml(message)}</div>
+        </div>`;
+    }
+
+    function renderError(message) {
+      app.innerHTML = `<div class="state">エラー: ${escapeHtml(message)}</div>`;
+    }
+
+    function renderEmpty(message) {
+      app.innerHTML = `<div class="empty">${escapeHtml(message)}</div>`;
+    }
+
+    function statusClass(status) {
+      return status === "募集中" ? "ok" : "other";
+    }
+
+    function updateBackButton() {
+      btnBackToList.hidden = currentMode === "list";
+    }
+
+    function renderList(items) {
+      currentMode = "list";
+      selectedSeminar = null;
+      updateBackButton();
+      setSummary(items.length, "セミナー一覧を表示");
+      showNotice("info", "一覧からセミナーを選択してください。");
+
+      if (!items.length) {
+        renderEmpty("現在、募集中のセミナーはありません。");
+        return;
+      }
+
+      const cards = items.map((item, index) => `
+        <article class="card">
+          <div class="card-head">
+            <h2 class="card-title">${index + 1}. ${escapeHtml(item.seminarTitle || "名称未設定")}</h2>
+            <div class="status ${statusClass(item.recruitStatus || "")}">${escapeHtml(item.recruitStatus || "未設定")}</div>
+          </div>
+
+          <div class="meta-grid">
+            <div class="meta-item">
+              <div class="meta-label">開催日時</div>
+              <div class="meta-value">${escapeHtml(item.eventDateText || item.eventDate || "-")}</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">公開状態</div>
+              <div class="meta-value">${escapeHtml(item.lineVisible || "-")}</div>
+            </div>
+          </div>
+
+          <div class="message">${escapeHtml(shortenText(item.description || "", 120))}</div>
+
+          <div class="card-actions">
+            <button
+              type="button"
+              class="btn primary detail-button"
+              data-record-id="${escapeAttr(item.recordId)}">
+              詳細を見る
+            </button>
+          </div>
+        </article>
+      `).join("");
+
+      app.innerHTML = `<div class="list">${cards}</div>`;
+    }
+
+    function renderDetail(item) {
+      currentMode = "detail";
+      selectedSeminar = item;
+      updateBackButton();
+      setSummary(1, "詳細を表示");
+      showNotice("info", "内容を確認して、必要ならそのまま申込してください。");
+
+      app.innerHTML = `
+        <article class="card">
+          <div class="card-head">
+            <h2 class="card-title">${escapeHtml(item.seminarTitle || "名称未設定")}</h2>
+            <div class="status ${statusClass(item.recruitStatus || "")}">${escapeHtml(item.recruitStatus || "未設定")}</div>
+          </div>
+
+          <div class="meta-grid">
+            <div class="meta-item">
+              <div class="meta-label">開催日時</div>
+              <div class="meta-value">${escapeHtml(item.eventDateText || item.eventDate || "-")}</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">公開状態</div>
+              <div class="meta-value">${escapeHtml(item.lineVisible || "-")}</div>
+            </div>
+          </div>
+
+          <div class="message">${escapeHtml(item.description || "説明はありません。")}</div>
+
+          <div class="form-box">
+            <div class="form-row">
+              <label class="form-label" for="applicantName">申込者名</label>
+              <input
+                id="applicantName"
+                class="form-input"
+                type="text"
+                maxlength="100"
+                placeholder="例: 山田 太郎">
+            </div>
+
+            <div class="card-actions">
+              <button type="button" class="btn primary" id="btnConfirmApply">
+                この内容で申込む
+              </button>
+              <button type="button" class="btn subtle" id="btnBackFromDetail">
+                一覧へ戻る
+              </button>
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    async function fetchJson(path, options = {}) {
+      const url = `${API_BASE_URL}${path}`;
+      const res = await fetch(url, {
+        headers: {
+          Accept: "application/json",
+          ...(options.headers || {})
+        },
+        method: options.method || "GET",
+        body: options.body
+      });
+
+      const text = await res.text();
+      let data = {};
+
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch {
+        data = { raw: text };
+      }
+
+      if (!res.ok) {
+        throw new Error(data.message || `HTTP ${res.status}`);
+      }
+
+      return data;
+    }
+
+    async function loadSeminarList() {
+      if (loading) return;
+
+      loading = true;
+      renderLoading("募集中のセミナーを取得しています...");
+      showNotice("info", "セミナー一覧を読み込み中です...");
+
+      try {
+        const data = await fetchJson("/api/liff/seminar-list");
+        seminarItems = data.items || [];
+        renderList(seminarItems);
+      } catch (err) {
+        renderError(err.message || "セミナー一覧の取得に失敗しました。");
+        showNotice("error", err.message || "セミナー一覧の取得に失敗しました。");
+      } finally {
+        loading = false;
+      }
+    }
+
+    async function initLiff() {
+      renderLoading("LIFF を初期化しています...");
+      showNotice("info", "LINEプロフィールを確認しています...");
+
+      try {
+        await liff.init({ liffId: LIFF_ID });
+
+        if (!liff.isLoggedIn()) {
+          liff.login();
+          return;
+        }
+
+        const granted = await liff.permission.getGrantedAll();
+        const hasProfile = granted.includes("profile");
+
+        if (!hasProfile) {
+          const permissionStatus = await liff.permission.query("profile");
+          if (permissionStatus.state === "prompt") {
+            await liff.permission.requestAll();
+          }
+        }
+
+        profile = await liff.getProfile();
+
+        document.getElementById("profileArea").hidden = false;
+        document.getElementById("profileImage").src = profile.pictureUrl || "";
+        document.getElementById("displayName").textContent = profile.displayName || "";
+        document.getElementById("userId").textContent = profile.userId || "";
+
+        await loadSeminarList();
+      } catch (err) {
+        console.error("LIFF init/profile error:", err);
+        const message = err?.message || JSON.stringify(err) || "プロフィール取得に失敗しました。";
+        renderError(message);
+        showNotice("error", message);
+      }
+    }
+
+    function shortenText(text, maxLength) {
+      const value = String(text || "");
+      if (value.length <= maxLength) return value;
+      return value.slice(0, maxLength) + "…";
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function escapeAttr(str) {
+      return escapeHtml(str);
+    }
+
+    app.addEventListener("click", async (event) => {
+      const detailButton = event.target.closest(".detail-button");
+      if (detailButton) {
+        const recordId = detailButton.dataset.recordId;
+        const item = seminarItems.find(x => String(x.recordId) === String(recordId));
+        if (item) {
+          renderDetail(item);
+        }
+        return;
+      }
+
+      const backButton = event.target.closest("#btnBackFromDetail");
+      if (backButton) {
+        renderList(seminarItems);
+        return;
+      }
+
+      const confirmButton = event.target.closest("#btnConfirmApply");
+      if (confirmButton) {
+        const applicantName = document.getElementById("applicantName")?.value?.trim() || "";
+
+        if (!selectedSeminar) {
+          showNotice("error", "対象セミナーが見つかりません。");
+          return;
+        }
+
+        if (!applicantName) {
+          showNotice("error", "申込者名を入力してください。");
+          return;
+        }
+
+        showNotice("info", "申込APIは次のステップで接続します。");
+      }
+    });
+
+    btnBackToList.addEventListener("click", () => {
+      renderList(seminarItems);
+    });
+
+    btnReload.addEventListener("click", async () => {
+      await loadSeminarList();
+    });
+
+    btnClose.addEventListener("click", () => {
+      if (liff.isInClient()) {
+        liff.closeWindow();
+      }
+    });
+
+    setSummary(0, "一覧を表示");
+    initLiff().catch(err => {
+      const message = err.message || "LIFF 初期化に失敗しました。";
+      renderError(message);
+      showNotice("error", message);
+    });
+  </script>
+</body>
+</html>
