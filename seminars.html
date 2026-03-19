@@ -750,57 +750,62 @@
         return;
       }
 
-      const confirmButton = event.target.closest("#btnConfirmApply");
-      if (confirmButton) {
-        const applicantName = document.getElementById("applicantName")?.value?.trim() || "";
+const confirmButton = event.target.closest("#btnConfirmApply");
+if (confirmButton) {
+  const applicantName = document.getElementById("applicantName")?.value?.trim() || "";
 
-        if (!selectedSeminar) {
-          showNotice("error", "対象セミナーが見つかりません。");
-          return;
-        }
+  if (!selectedSeminar) {
+    showNotice("error", "対象セミナーが見つかりません。");
+    return;
+  }
 
-        if (!profile?.userId) {
-          showNotice("error", "LINEユーザー情報を取得できませんでした。");
-          return;
-        }
+  if (!profile?.userId) {
+    showNotice("error", "LINEユーザー情報を取得できませんでした。");
+    return;
+  }
 
-        if (!applicantName) {
-          showNotice("error", "申込者名を入力してください。");
-          return;
-        }
+  if (!applicantName) {
+    showNotice("error", "申込者名を入力してください。");
+    return;
+  }
 
-        if (loading) {
-          return;
-        }
+  const seminarRecordId = String(selectedSeminar?.recordId || "").trim();
 
-        loading = true;
-        showNotice("info", "申込処理を実行しています...");
+  if (!seminarRecordId || !/^\\d+$/.test(seminarRecordId)) {
+    showNotice("error", `セミナーIDが不正です: ${seminarRecordId || "(空)"}`);
+    return;
+  }
 
-        try {
-          const result = await fetchJson("/api/liff/seminar-apply", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              lineUserId: profile.userId,
-              applicantName: applicantName,
-              seminarRecordId: selectedSeminar.recordId
-            })
-          });
+  if (loading) {
+    return;
+  }
 
-          showNotice("success", result.message || "申込を受け付けました。");
-          await loadSeminarList();
-        } catch (err) {
-          showNotice("error", err.message || "申込に失敗しました。");
-        } finally {
-          loading = false;
-        }
+  loading = true;
+  showNotice("info", "申込処理を実行しています...");
 
-        return;
-      }
+  try {
+    const result = await fetchJson("/api/liff/seminar-apply", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        lineUserId: profile.userId,
+        applicantName: applicantName,
+        seminarRecordId: seminarRecordId
+      })
     });
 
+    showNotice("success", result.message || "申込を受け付けました。");
+    await loadSeminarList();
+  } catch (err) {
+    showNotice("error", err.message || "申込に失敗しました。");
+  } finally {
+    loading = false;
+  }
+
+  return;
+}
     btnBackToList.addEventListener("click", () => {
       renderList(seminarItems);
     });
