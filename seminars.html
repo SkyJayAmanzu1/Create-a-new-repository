@@ -799,7 +799,8 @@ app.addEventListener("click", async (event) => {
       showNotice("success", result.message || "申込を受け付けました。");
       await loadSeminarList();
     } catch (err) {
-      showNotice("error", err.message || "申込に失敗しました。");
+        console.error("seminar-apply error:", err);
+  showNotice("error", err.message || JSON.stringify(err) || "申込に失敗しました。");
     } finally {
       loading = false;
     }
