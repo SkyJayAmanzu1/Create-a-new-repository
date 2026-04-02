@@ -1,4 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sky Jay | Web Designer</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #0f172a;
+    color: white;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    background: #020617;
+}
+
+nav a {
+    color: #38bdf8;
+    margin: 0 10px;
+    text-decoration: none;
+}
+
+.hero {
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.hero h1 {
+    font-size: 40px;
+}
+
+.btn {
+    background: #38bdf8;
+    padding: 12px 25px;
+    border: none;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.section {
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: #020617;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.price {
+    font-size: 25px;
+    color: #38bdf8;
+}
+
+/* testimonial */
+.testimonial {
+    background: #020617;
+    margin: 20px auto;
+    padding: 20px;
+    max-width: 400px;
+    border-radius: 10px;
+}
+
+/* footer */
+footer {
+    background: #020617;
+    padding: 20px;
+    text-align: center;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h2>Sky Jay</h2>
+    <nav>
+        <a href="#">Home</a>
+        <a href="#services">Services</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#contact">Contact</a>
+    </nav>
+</header>
+
+<section class="hero">
+    <h1>I Help Businesses Get Customers Online</h1>
+    <p>I design clean and modern websites that attract clients</p>
+
+    <a href="https://wa.me/2349024458715">
+        <button class="btn">Hire Me on WhatsApp</button>
+    </a>
+</section>
+
+<section id="services" class="section">
+    <h2>My Services</h2>
+
+    <div class="cards">
+        <div class="card">
+            <h3>Business Website</h3>
+            <p>Professional website for your business</p>
+        </div>
+
+        <div class="card">
+            <h3>Landing Page</h3>
+            <p>Page designed to convert visitors into customers</p>
+        </div>
+
+        <div class="card">
+            <h3>Portfolio Website</h3>
+            <p>Showcase your work professionally</p>
+        </div>
+    </div>
+</section>
+
+<section id="pricing" class="section">
+    <h2>Pricing</h2>
+
+    <div class="cards">
+        <div class="card">
+            <h3>Basic</h3>
+            <p class="price">₦15,000</p>
+            <p>1-page website</p>
+        </div>
+
+        <div class="card">
+            <h3>Standard</h3>
+            <p class="price">₦30,000</p>
+            <p>3–5 pages website</p>
+        </div>
+
+        <div class="card">
+            <h3>Premium</h3>
+            <p class="price">₦50,000</p>
+            <p>Full business website</p>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <h2>What Clients Say</h2>
+
+    <div class="testimonial">
+        <p>"Very clean website. My customers love it!"</p>
+        <strong>- Happy Client</strong>
+    </div>
+
+    <div class="testimonial">
+        <p>"Fast and affordable. Highly recommend."</p>
+        <strong>- Business Owner</strong>
+    </div>
+</section>
+
 <section id="contact" class="section">
+    <h2>Ready to Work?</h2>
+    <p>Let’s build your business website today</p>
+
+    <a href="https://wa.me/2349024458715">
+        <button class="btn">Chat Me on WhatsApp</button>
+    </a>
+</section>
+
+<footer>
+    <p>© 2026 Sky Jay | Web Designer</p>
+</footer>
+
+</body>
+</html><section id="contact" class="section">
     <h2>Hire Me</h2>
     <p>I build affordable websites for businesses.</p>
 
